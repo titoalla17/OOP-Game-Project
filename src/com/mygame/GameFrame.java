@@ -1,5 +1,7 @@
-// File: src/com/mygame/GameFrame.java
 package com.mygame;
+
+import com.mygame.utils.HighScoreManager;
+import com.mygame.utils.SoundManager;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -8,50 +10,64 @@ import java.awt.CardLayout;
 public class GameFrame extends JFrame {
 
     private CardLayout cardLayout;
-    private JPanel mainPanel; // Panel yang menggunakan CardLayout
+    private JPanel mainPanel;
     private MainMenuPanel mainMenuPanel;
     private GamePanel gamePanel;
+    private HighScorePanel highScorePanel;
 
-    // Nama konstanta untuk setiap "kartu"
+    private SoundManager soundManager;
+    private HighScoreManager highScoreManager;
+
     private static final String MENU_PANEL = "MainMenu";
     private static final String GAME_PANEL = "Game";
+    private static final String HIGHSCORE_PANEL = "HighScore";
 
     public GameFrame() {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
-        mainMenuPanel = new MainMenuPanel();
-        gamePanel = new GamePanel(this); // Berikan referensi frame ini ke game panel
+        soundManager = new SoundManager();
+        highScoreManager = new HighScoreManager();
 
-        // Tambahkan panel-panel ke mainPanel dengan nama unik
+        mainMenuPanel = new MainMenuPanel();
+        gamePanel = new GamePanel(this, soundManager, highScoreManager);
+        highScorePanel = new HighScorePanel();
+
         mainPanel.add(mainMenuPanel, MENU_PANEL);
         mainPanel.add(gamePanel, GAME_PANEL);
+        mainPanel.add(highScorePanel, HIGHSCORE_PANEL);
 
-        // Tambahkan listener ke tombol-tombol menu
-        mainMenuPanel.addStartButtonListener(e -> startGame());
-        mainMenuPanel.addExitButtonListener(e -> System.exit(0));
+        setupListeners();
 
-        add(mainPanel); // Tambahkan mainPanel ke frame
+        add(mainPanel);
 
-        setTitle("Jakarta Rush Hour");
+        setTitle("Jakarta Rampage");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
-        pack(); // Atur ukuran frame sesuai konten
-        setLocationRelativeTo(null); // Tampilkan di tengah layar
+        pack();
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
+    private void setupListeners() {
+        mainMenuPanel.addStartButtonListener(e -> startGame());
+        mainMenuPanel.addHighScoreButtonListener(e -> showHighScores());
+        mainMenuPanel.addExitButtonListener(e -> System.exit(0));
+        highScorePanel.addBackButtonListener(e -> showMenu());
+    }
+
     private void startGame() {
-        // Panggil method untuk mereset dan memulai game
         gamePanel.startGame();
-        // Tukar kartu untuk menampilkan GamePanel
         cardLayout.show(mainPanel, GAME_PANEL);
-        // Penting: Pindahkan fokus ke GamePanel agar KeyListener berfungsi
         gamePanel.requestFocusInWindow();
     }
 
-    // Method ini akan dipanggil dari GamePanel saat game over
     public void showMenu() {
         cardLayout.show(mainPanel, MENU_PANEL);
+    }
+
+    private void showHighScores() {
+        highScorePanel.updateScores();
+        cardLayout.show(mainPanel, HIGHSCORE_PANEL);
     }
 }

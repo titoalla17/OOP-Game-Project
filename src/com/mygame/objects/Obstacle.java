@@ -1,4 +1,3 @@
-// File: src/com/mygame/objects/Obstacle.java
 package com.mygame.objects;
 
 import javax.swing.ImageIcon;
@@ -6,27 +5,79 @@ import java.awt.Graphics;
 import java.util.Random;
 
 public class Obstacle extends GameObject {
-    private int fallSpeed;
 
-    public Obstacle(int x, int y) {
+    private ObstacleType type;
+    private int fallSpeed;
+    private int health;
+
+    public Obstacle(int x, int y, ObstacleType type, int level, int scrollSpeed) {
         super(x, y);
-        // Kecepatan jatuh bisa dibuat acak agar lebih dinamis
-        this.fallSpeed = new Random().nextInt(3) + 2; // Kecepatan antara 2 s/d 4
+        this.type = type;
+
+        // PERBAIKAN: Cek jika tipenya BUKAN HOLE
+        if (type != ObstacleType.HOLE) {
+            this.health = 30; // Semua mobil punya 30 nyawa
+            int carBaseSpeed = 2;
+            int carRandomSpeed = new Random().nextInt(2);
+            int carOwnSpeed = carBaseSpeed + carRandomSpeed + level;
+
+            this.fallSpeed = carOwnSpeed + scrollSpeed;
+        } else { // Jika tipenya adalah HOLE
+            this.health = 9999; // Lubang tidak bisa dihancurkan
+            this.fallSpeed = scrollSpeed;
+        }
+
         loadImage();
     }
 
     private void loadImage() {
-        // Di sini Anda bisa membuat logika untuk memuat gambar obstacle secara acak
-        // Untuk saat ini, kita gunakan satu gambar saja.
-        ImageIcon ii = new ImageIcon("res/images/obstacle1.png");
+        String imagePath = "res/images/car_blue.png";
+        switch (type) {
+            case CARGO:
+                imagePath = "res/images/car_blue.png";
+                break;
+            case CAR_YELLOW:
+                imagePath = "res/images/car_yellow.png";
+                break;
+            case MOTOR:
+                imagePath = "res/images/motor.png";
+                break;
+            case CAR_GREEN:
+                imagePath = "res/images/car_green.png";
+                break;
+            case TRUCK:
+                imagePath = "res/images/truck.png";
+                break;
+            case VAN:
+                imagePath = "res/images/van.png";
+                break;
+            case CONVERTIBLE_CAR:
+                imagePath = "res/images/convertible_car.png";
+                break;
+            case HOLE:
+                imagePath = "res/images/obstacle_hole.png";
+                break;
+        }
+        ImageIcon ii = new ImageIcon(imagePath);
         image = ii.getImage();
         width = image.getWidth(null);
         height = image.getHeight(null);
     }
 
-    // Method untuk menggerakkan obstacle ke bawah
     public void update() {
-        this.y += fallSpeed;
+        y += fallSpeed;
+    }
+
+    public void takeDamage(int damage) {
+        this.health -= damage;
+    }
+
+    public boolean isDestroyed() {
+        return health <= 0;
+    }
+
+    public ObstacleType getType() {
+        return this.type;
     }
 
     @Override

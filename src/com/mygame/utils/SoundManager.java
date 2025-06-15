@@ -1,4 +1,3 @@
-// File: src/com/mygame/utils/SoundManager.java
 package com.mygame.utils;
 
 import javax.sound.sampled.AudioInputStream;
@@ -7,6 +6,8 @@ import javax.sound.sampled.Clip;
 import java.io.File;
 
 public class SoundManager {
+
+    private Clip backgroundMusicClip;
 
     public void playSound(String soundFilePath) {
         try {
@@ -17,9 +18,28 @@ public class SoundManager {
             clip.start();
         } catch (Exception e) {
             System.err.println("Error playing sound: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
-    // Anda bisa membuat method lain untuk looping background music
+    public void startBackgroundMusic(String soundFilePath) {
+        try {
+            if (backgroundMusicClip != null && backgroundMusicClip.isRunning()) {
+                backgroundMusicClip.stop();
+            }
+            File soundFile = new File(soundFilePath);
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+            backgroundMusicClip = AudioSystem.getClip();
+            backgroundMusicClip.open(audioIn);
+            backgroundMusicClip.loop(Clip.LOOP_CONTINUOUSLY);
+        } catch (Exception e) {
+            System.err.println("Error playing background music: " + e.getMessage());
+        }
+    }
+
+    public void stopBackgroundMusic() {
+        if (backgroundMusicClip != null) {
+            backgroundMusicClip.stop();
+            backgroundMusicClip.close();
+        }
+    }
 }

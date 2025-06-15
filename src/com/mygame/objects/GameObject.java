@@ -13,15 +13,12 @@ public abstract class GameObject {
         this.y = y;
     }
 
-    // Abstract method, harus diimplementasikan oleh subclass
     public abstract void draw(Graphics g);
 
-    // Method untuk deteksi tabrakan
     public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
     }
 
-    // Getters dan Setters
     public int getX() { return x; }
     public int getY() { return y; }
 }
